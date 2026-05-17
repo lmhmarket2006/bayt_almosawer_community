@@ -5,9 +5,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{% block title %}مجتمع بيت المصور{% endblock %}</title>
+    <title>{% block title %}{{ system_settings.platform_name if system_settings is defined else "مجتمع بيت المصور" }}{% endblock %}</title>
 
-    <meta name="description" content="مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور لعرض الأعمال، التفاعل، التقييم، والتطور المهني في عالم التصوير.">
+    <meta
+        name="description"
+        content="{{ system_settings.platform_description if system_settings is defined else 'مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور لعرض الأعمال، التفاعل، التقييم، والتطور المهني في عالم التصوير.' }}"
+    >
 
     <!-- Bootstrap RTL -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
@@ -32,40 +35,66 @@
                     alt="شعار أكاديمية بيت المصور"
                     class="brand-image"
                 >
-                <span>مجتمع بيت المصور</span>
+                <span>{{ system_settings.platform_name if system_settings is defined else "مجتمع بيت المصور" }}</span>
             </a>
 
-            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="فتح القائمة">
+            <button
+                class="navbar-toggler custom-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#mainNavbar"
+                aria-controls="mainNavbar"
+                aria-expanded="false"
+                aria-label="فتح القائمة"
+            >
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="mainNavbar">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">الرئيسية</a>
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">
+                            الرئيسية
+                        </a>
                     </li>
 
                     {% if current_user.is_authenticated and current_user.is_approved %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}" href="{{ url_for('feed') }}">المجتمع</a>
+                            <a class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}" href="{{ url_for('feed') }}">
+                                المجتمع
+                            </a>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="/#features">المميزات</a>
+                            <a class="nav-link" href="/#features">
+                                المميزات
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link" href="/#how-it-works">طريقة العمل</a>
+                            <a class="nav-link" href="/#how-it-works">
+                                طريقة العمل
+                            </a>
                         </li>
                     {% endif %}
 
                     {% if current_user.is_authenticated and current_user.is_admin %}
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">لوحة الإدارة</a>
+                            <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">
+                                لوحة الإدارة
+                            </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}">المستخدمون</a>
+                            <a class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}">
+                                المستخدمون
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'admin_settings' %}active{% endif %}" href="{{ url_for('admin_settings') }}">
+                                الإعدادات
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
@@ -116,14 +145,15 @@
         <div class="container">
             <div class="footer-card">
                 <div>
-                    <h5>مجتمع بيت المصور</h5>
+                    <h5>{{ system_settings.platform_name if system_settings is defined else "مجتمع بيت المصور" }}</h5>
                     <p>
-                        مساحة مهنية لخريجي ومتدربي الأكاديمية لعرض الأعمال، تبادل الخبرات، وبناء حضور احترافي في عالم التصوير.
+                        {{ system_settings.platform_description if system_settings is defined else "مساحة مهنية لخريجي ومتدربي الأكاديمية لعرض الأعمال، تبادل الخبرات، وبناء حضور احترافي في عالم التصوير." }}
                     </p>
                 </div>
 
                 <div class="footer-links">
                     <a href="/">الرئيسية</a>
+
                     {% if current_user.is_authenticated and current_user.is_approved %}
                         <a href="{{ url_for('feed') }}">المجتمع</a>
                     {% else %}
@@ -134,6 +164,19 @@
                     {% if current_user.is_authenticated and current_user.is_admin %}
                         <a href="{{ url_for('admin_dashboard') }}">الإدارة</a>
                         <a href="{{ url_for('admin_users') }}">المستخدمون</a>
+                        <a href="{{ url_for('admin_settings') }}">الإعدادات</a>
+                    {% endif %}
+
+                    {% if system_settings is defined and system_settings.contact_instagram %}
+                        <a href="{{ system_settings.contact_instagram }}" target="_blank" rel="noopener">
+                            إنستغرام
+                        </a>
+                    {% endif %}
+
+                    {% if system_settings is defined and system_settings.contact_whatsapp %}
+                        <a href="https://wa.me/{{ system_settings.contact_whatsapp }}" target="_blank" rel="noopener">
+                            واتساب
+                        </a>
                     {% endif %}
                 </div>
             </div>
@@ -156,32 +199,39 @@
                 <small>المجتمع</small>
             </a>
 
-<a href="{{ url_for('new_post') }}" class="add-button">
-    <span>＋</span>
-    <small>انشر</small>
-</a>
+            <a href="{{ url_for('new_post') }}" class="add-button {% if request.endpoint == 'new_post' %}active{% endif %}">
+                <span>＋</span>
+                <small>انشر</small>
+            </a>
+
             {% if current_user.is_admin %}
                 <a href="{{ url_for('admin_users') }}" class="{% if request.endpoint == 'admin_users' %}active{% endif %}">
                     <span>👥</span>
                     <small>الأعضاء</small>
                 </a>
-{% else %}
-    <a href="{{ url_for('profile', username=current_user.username) }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
-        <span>☻</span>
-        <small>حسابي</small>
-    </a>
-{% endif %}
-            <a href="{{ url_for('logout') }}">
-                <span>↩</span>
-                <small>خروج</small>
-            </a>
+
+                <a href="{{ url_for('admin_settings') }}" class="{% if request.endpoint == 'admin_settings' %}active{% endif %}">
+                    <span>⚙</span>
+                    <small>الإعدادات</small>
+                </a>
+            {% else %}
+                <a href="{{ url_for('profile', username=current_user.username) }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
+                    <span>☻</span>
+                    <small>حسابي</small>
+                </a>
+
+                <a href="{{ url_for('logout') }}">
+                    <span>↩</span>
+                    <small>خروج</small>
+                </a>
+            {% endif %}
         {% else %}
             <a href="/#features">
                 <span>✦</span>
                 <small>المميزات</small>
             </a>
 
-            <a href="{{ url_for('register') }}" class="add-button">
+            <a href="{{ url_for('register') }}" class="add-button {% if request.endpoint == 'register' %}active{% endif %}">
                 <span>＋</span>
                 <small>انضم</small>
             </a>

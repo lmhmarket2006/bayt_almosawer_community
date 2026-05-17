@@ -13,7 +13,7 @@ from flask_login import (
 from werkzeug.exceptions import RequestEntityTooLarge
 
 from config import Config
-from models import db, User, Post, Like, Comment
+from models import db, User, Post, Like, Comment, SystemSetting
 
 
 app = Flask(__name__)
@@ -211,6 +211,59 @@ def prevent_last_admin_action(user):
     return False
 
 
+def get_setting(key, default=""):
+    setting = SystemSetting.query.filter_by(key=key).first()
+
+    if not setting:
+        return default
+
+    return setting.value or default
+
+
+def set_setting(key, value):
+    setting = SystemSetting.query.filter_by(key=key).first()
+
+    if not setting:
+        setting = SystemSetting(key=key, value=value)
+        db.session.add(setting)
+    else:
+        setting.value = value
+
+    return setting
+
+
+def seed_default_settings():
+    defaults = {
+        "platform_name": "مجتمع بيت المصور",
+        "platform_description": "مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور لعرض الأعمال، التفاعل، التقييم، والتطور المهني في عالم التصوير.",
+        "contact_whatsapp": "",
+        "contact_instagram": "",
+    }
+
+    for key, value in defaults.items():
+        existing = SystemSetting.query.filter_by(key=key).first()
+
+        if not existing:
+            db.session.add(SystemSetting(key=key, value=value))
+
+    db.session.commit()
+
+
+@app.context_processor
+def inject_system_settings():
+    return {
+        "system_settings": {
+            "platform_name": get_setting("platform_name", "مجتمع بيت المصور"),
+            "platform_description": get_setting(
+                "platform_description",
+                "مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور."
+            ),
+            "contact_whatsapp": get_setting("contact_whatsapp", ""),
+            "contact_instagram": get_setting("contact_instagram", ""),
+        }
+    }
+
+
 with app.app_context():
     os.makedirs(app.config["UPLOAD_FOLDER_POSTS"], exist_ok=True)
     os.makedirs(app.config["UPLOAD_FOLDER_AVATARS"], exist_ok=True)
@@ -218,6 +271,7 @@ with app.app_context():
 
     db.create_all()
     create_default_admin()
+    seed_default_settings()
 
 
 @app.route("/")
@@ -631,6 +685,10 @@ def admin_dashboard():
     approved_users = User.query.filter_by(status="approved").count()
     blocked_users = User.query.filter_by(status="blocked").count()
 
+    total_posts = Post.query.count()
+    total_likes = Like.query.count()
+    total_comments = Comment.query.count()
+
     latest_users = User.query.order_by(User.created_at.desc()).limit(8).all()
 
     return render_template(
@@ -639,6 +697,9 @@ def admin_dashboard():
         pending_users=pending_users,
         approved_users=approved_users,
         blocked_users=blocked_users,
+        total_posts=total_posts,
+        total_likes=total_likes,
+        total_comments=total_comments,
         latest_users=latest_users,
     )
 
@@ -795,6 +856,79 @@ def admin_make_admin(user_id):
 
     flash(f"تم ترقية {user.name} إلى Admin.", "success")
     return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/settings", methods=["GET", "POST"])
+@login_required
+@admin_required
+def admin_settings():
+    if request.method == "POST":
+        form_type = request.form.get("form_type", "").strip()
+
+        if form_type == "general_settings":
+            platform_name = request.form.get("platform_name", "").strip()
+            platform_description = request.form.get("platform_description", "").strip()
+            contact_whatsapp = request.form.get("contact_whatsapp", "").strip()
+            contact_instagram = request.form.get("contact_instagram", "").strip()
+
+            if not platform_name:
+                flash("اسم المنصة لا يمكن أن يكون فارغًا.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            if len(platform_description) > 500:
+                flash("وصف المنصة طويل جدًا. الحد الأقصى 500 حرف.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            set_setting("platform_name", platform_name)
+            set_setting("platform_description", platform_description)
+            set_setting("contact_whatsapp", contact_whatsapp)
+            set_setting("contact_instagram", contact_instagram)
+
+            db.session.commit()
+
+            flash("تم حفظ إعدادات المنصة بنجاح.", "success")
+            return redirect(url_for("admin_settings"))
+
+        if form_type == "change_password":
+            current_password = request.form.get("current_password", "").strip()
+            new_password = request.form.get("new_password", "").strip()
+            confirm_password = request.form.get("confirm_password", "").strip()
+
+            if not current_password or not new_password or not confirm_password:
+                flash("من فضلك أكمل جميع حقول تغيير كلمة المرور.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            if not current_user.check_password(current_password):
+                flash("كلمة المرور الحالية غير صحيحة.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            if len(new_password) < 8:
+                flash("كلمة المرور الجديدة يجب ألا تقل عن 8 أحرف.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            if new_password != confirm_password:
+                flash("كلمة المرور الجديدة وتأكيدها غير متطابقين.", "danger")
+                return redirect(url_for("admin_settings"))
+
+            current_user.set_password(new_password)
+            db.session.commit()
+
+            flash("تم تغيير كلمة المرور بنجاح. استخدم الكلمة الجديدة في تسجيل الدخول القادم.", "success")
+            return redirect(url_for("admin_settings"))
+
+        flash("نوع النموذج غير معروف.", "danger")
+        return redirect(url_for("admin_settings"))
+
+    return render_template(
+        "admin/settings.html",
+        platform_name=get_setting("platform_name", "مجتمع بيت المصور"),
+        platform_description=get_setting(
+            "platform_description",
+            "مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور."
+        ),
+        contact_whatsapp=get_setting("contact_whatsapp", ""),
+        contact_instagram=get_setting("contact_instagram", ""),
+    )
 
 
 @app.errorhandler(404)

@@ -13,7 +13,7 @@
                 <span>لوحة التحكم</span>
                 <h1>إدارة مجتمع بيت المصور</h1>
                 <p>
-                    نظرة شاملة على المستخدمين، حالات الحسابات، وإدارة مجتمع خريجي ومتدربي الأكاديمية.
+                    نظرة شاملة على المستخدمين، المنشورات، التفاعل، وإعدادات مجتمع خريجي ومتدربي الأكاديمية.
                 </p>
             </div>
 
@@ -22,13 +22,17 @@
                     إدارة المستخدمين
                 </a>
 
+                <a href="{{ url_for('admin_settings') }}" class="btn btn-outline-light rounded-pill px-4">
+                    إعدادات النظام
+                </a>
+
                 <a href="{{ url_for('feed') }}" class="btn btn-outline-light rounded-pill px-4">
                     العودة للمجتمع
                 </a>
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Users Stats Cards -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-lg-3">
                 <a href="{{ url_for('admin_users') }}" class="admin-stat-card stat-link">
@@ -63,6 +67,33 @@
             </div>
         </div>
 
+        <!-- Community Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-4">
+                <div class="admin-stat-card">
+                    <span>إجمالي المنشورات</span>
+                    <strong>{{ total_posts }}</strong>
+                    <small>كل ما تم نشره داخل المجتمع</small>
+                </div>
+            </div>
+
+            <div class="col-6 col-lg-4">
+                <div class="admin-stat-card">
+                    <span>إجمالي الإعجابات</span>
+                    <strong>{{ total_likes }}</strong>
+                    <small>مؤشر أولي على التفاعل</small>
+                </div>
+            </div>
+
+            <div class="col-12 col-lg-4">
+                <div class="admin-stat-card">
+                    <span>إجمالي التعليقات</span>
+                    <strong>{{ total_comments }}</strong>
+                    <small>محادثات وتقييمات داخل المجتمع</small>
+                </div>
+            </div>
+        </div>
+
         <!-- Quick Actions -->
         <div class="admin-table-card mb-4">
             <div class="admin-table-header">
@@ -71,17 +102,17 @@
             </div>
 
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <a href="{{ url_for('admin_users', status='pending') }}" class="quick-admin-action">
                         <div class="quick-action-icon">⏳</div>
                         <div>
-                            <strong>مراجعة طلبات الانضمام</strong>
+                            <strong>طلبات الانضمام</strong>
                             <span>قبول أو رفض الحسابات الجديدة</span>
                         </div>
                     </a>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <a href="{{ url_for('admin_users', role='trainer') }}" class="quick-admin-action">
                         <div class="quick-action-icon">🎓</div>
                         <div>
@@ -91,12 +122,22 @@
                     </a>
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <a href="{{ url_for('admin_users', status='blocked') }}" class="quick-admin-action">
                         <div class="quick-action-icon">🚫</div>
                         <div>
                             <strong>الحسابات الموقوفة</strong>
                             <span>مراجعة وإعادة تفعيل الحسابات</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-3">
+                    <a href="{{ url_for('admin_settings') }}" class="quick-admin-action">
+                        <div class="quick-action-icon">⚙️</div>
+                        <div>
+                            <strong>إعدادات النظام</strong>
+                            <span>بيانات المنصة وكلمة مرور الأدمن</span>
                         </div>
                     </a>
                 </div>
@@ -131,7 +172,14 @@
                                 <td>
                                     <div class="user-cell">
                                         <div class="user-avatar-sm">
-                                            {{ user.name[:1] }}
+                                            {% if user.avatar %}
+                                                <img
+                                                    src="{{ url_for('static', filename='uploads/avatars/' ~ user.avatar) }}"
+                                                    alt="صورة {{ user.name }}"
+                                                >
+                                            {% else %}
+                                                {{ user.name[:1] }}
+                                            {% endif %}
                                         </div>
 
                                         <div>

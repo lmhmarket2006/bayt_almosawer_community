@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}إعدادات النظام | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <div class="admin-header">
+            <div>
+                <span>إعدادات النظام</span>
+                <h1>إدارة إعدادات المنصة</h1>
+                <p>
+                    تحكم في بيانات المنصة الأساسية، وروابط التواصل، وكلمة مرور حساب الأدمن.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light rounded-pill px-4">
+                    لوحة الإدارة
+                </a>
+
+                <a href="{{ url_for('feed') }}" class="btn btn-primary-custom rounded-pill px-4">
+                    المجتمع
+                </a>
+            </div>
+        </div>
+
+        <div class="settings-layout">
+
+            <div class="settings-card">
+                <div class="post-form-header">
+                    <span>الإعدادات العامة</span>
+                    <h1>بيانات المنصة</h1>
+                    <p>
+                        هذه البيانات يمكن استخدامها لاحقًا في الصفحة الرئيسية، الفوتر، والرسائل التعريفية.
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin_settings') }}" class="auth-form">
+                    <input type="hidden" name="form_type" value="general_settings">
+
+                    <div class="mb-3">
+                        <label class="form-label">اسم المنصة *</label>
+                        <input
+                            type="text"
+                            name="platform_name"
+                            class="form-control custom-input"
+                            value="{{ platform_name }}"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">وصف المنصة</label>
+                        <textarea
+                            name="platform_description"
+                            class="form-control custom-input"
+                            rows="5"
+                            maxlength="500"
+                            placeholder="اكتب وصفًا مختصرًا للمنصة..."
+                        >{{ platform_description }}</textarea>
+                        <small class="form-help">الحد الأقصى 500 حرف.</small>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">واتساب المنصة</label>
+                            <input
+                                type="text"
+                                name="contact_whatsapp"
+                                class="form-control custom-input"
+                                value="{{ contact_whatsapp }}"
+                                placeholder="9665xxxxxxxx"
+                            >
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">رابط إنستغرام</label>
+                            <input
+                                type="url"
+                                name="contact_instagram"
+                                class="form-control custom-input"
+                                value="{{ contact_instagram }}"
+                                placeholder="https://instagram.com/username"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                            حفظ الإعدادات
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="settings-side-card">
+                <div class="side-box">
+                    <h5>معاينة سريعة</h5>
+
+                    <div class="status-row">
+                        <span>اسم المنصة</span>
+                        <strong>{{ platform_name }}</strong>
+                    </div>
+
+                    <div class="status-row">
+                        <span>واتساب</span>
+                        <strong>
+                            {% if contact_whatsapp %}
+                                {{ contact_whatsapp }}
+                            {% else %}
+                                غير محدد
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="status-row">
+                        <span>إنستغرام</span>
+                        <strong>
+                            {% if contact_instagram %}
+                                مضاف
+                            {% else %}
+                                غير محدد
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+
+                <div class="side-box mt-3">
+                    <h5>ملاحظات مهمة</h5>
+                    <ul>
+                        <li>هذه الإعدادات محفوظة في قاعدة البيانات.</li>
+                        <li>يمكن استخدامها لاحقًا في الواجهة العامة.</li>
+                        <li>لا تضع بيانات حساسة هنا.</li>
+                    </ul>
+                </div>
+            </aside>
+
+        </div>
+
+        <div class="settings-layout mt-4">
+
+            <div class="settings-card">
+                <div class="post-form-header">
+                    <span>الأمان</span>
+                    <h1>تغيير كلمة مرور الأدمن</h1>
+                    <p>
+                        استخدم هذه الصفحة لتغيير كلمة مرور حسابك الحالي بدل استخدام روابط صيانة مؤقتة.
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ url_for('admin_settings') }}" class="auth-form">
+                    <input type="hidden" name="form_type" value="change_password">
+
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور الحالية *</label>
+                        <input
+                            type="password"
+                            name="current_password"
+                            class="form-control custom-input"
+                            required
+                        >
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">كلمة المرور الجديدة *</label>
+                        <input
+                            type="password"
+                            name="new_password"
+                            class="form-control custom-input"
+                            required
+                            minlength="8"
+                        >
+                        <small class="form-help">يفضل استخدام حروف كبيرة وصغيرة وأرقام ورموز.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">تأكيد كلمة المرور الجديدة *</label>
+                        <input
+                            type="password"
+                            name="confirm_password"
+                            class="form-control custom-input"
+                            required
+                            minlength="8"
+                        >
+                    </div>
+
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                            تغيير كلمة المرور
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="settings-side-card">
+                <div class="side-box">
+                    <h5>إرشادات الأمان</h5>
+                    <ul>
+                        <li>لا تستخدم كلمة مرور سبق إرسالها في محادثة أو لوج.</li>
+                        <li>لا تستخدم رقم الهاتف فقط ككلمة مرور.</li>
+                        <li>استخدم كلمة لا تقل عن 12 حرفًا إن أمكن.</li>
+                        <li>غيّر كلمة المرور دوريًا.</li>
+                    </ul>
+                </div>
+            </aside>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
