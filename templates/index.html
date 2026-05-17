@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}مجتمع بيت المصور | منصة خريجي ومتدربي الأكاديمية{% endblock %}
+{% block title %}{{ system_settings.platform_name if system_settings is defined else "مجتمع بيت المصور" }} | منصة خريجي ومتدربي الأكاديمية{% endblock %}
 
 {% block content %}
 
@@ -15,43 +15,73 @@
                 <div class="hero-content">
                     <div class="eyebrow">
                         <span></span>
-                        مجتمع خاص بالمصورين المتدربين والخريجين
+                        منصة اجتماعية مهنية لمصوري بيت المصور
                     </div>
 
                     <h1>
-                        مجتمع مهني للمصورين
+                        مجتمع بيت المصور
                         <br>
-                        يبدأ من بيت المصور
+                        أصبح يعمل الآن
                     </h1>
 
                     <p class="hero-description">
-                        منصة اجتماعية خاصة بخريجي ومتدربي أكاديمية بيت المصور، لعرض الأعمال، الحصول على تقييم، التفاعل مع الزملاء، وبناء بورتفوليو احترافي مستمر.
+                        مساحة رقمية خاصة بخريجي ومتدربي أكاديمية بيت المصور لعرض الأعمال، نشر الصور، تلقي التعليقات، بناء بروفايل احترافي، والتواصل مع مجتمع يهتم فعلًا بتطوير مهارة التصوير.
                     </p>
 
                     <div class="hero-actions">
-                        <a href="#" class="btn btn-primary-custom btn-lg rounded-pill px-4 disabled-link">
-                            انضم للمجتمع قريبًا
-                        </a>
+                        {% if current_user.is_authenticated and current_user.is_approved %}
+                            <a href="{{ url_for('feed') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                                ادخل المجتمع
+                            </a>
 
-                        <a href="#features" class="btn btn-glass btn-lg rounded-pill px-4">
-                            استكشف المميزات
-                        </a>
+                            <a href="{{ url_for('new_post') }}" class="btn btn-glass btn-lg rounded-pill px-4">
+                                أنشئ منشورًا
+                            </a>
+                        {% elif current_user.is_authenticated and current_user.is_pending %}
+                            <a href="{{ url_for('pending') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                                حالة الحساب
+                            </a>
+
+                            <a href="#features" class="btn btn-glass btn-lg rounded-pill px-4">
+                                استكشف المميزات
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                                انضم الآن
+                            </a>
+
+                            <a href="{{ url_for('login') }}" class="btn btn-glass btn-lg rounded-pill px-4">
+                                تسجيل الدخول
+                            </a>
+                        {% endif %}
                     </div>
+
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <div class="hero-actions mt-3">
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                                لوحة الإدارة
+                            </a>
+
+                            <a href="{{ url_for('admin_settings') }}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+                                إعدادات النظام
+                            </a>
+                        </div>
+                    {% endif %}
 
                     <div class="hero-stats">
                         <div>
-                            <strong>خريجون</strong>
-                            <span>مجتمع مستمر بعد الدورة</span>
+                            <strong>بروفايل</strong>
+                            <span>صفحة شخصية لكل مصور</span>
                         </div>
 
                         <div>
-                            <strong>أعمال</strong>
-                            <span>عرض وتقييم للصور</span>
+                            <strong>منشورات</strong>
+                            <span>صور وتجارب قابلة للتفاعل</span>
                         </div>
 
                         <div>
-                            <strong>فرص</strong>
-                            <span>تعاون وتحديات مستقبلية</span>
+                            <strong>إدارة</strong>
+                            <span>مراجعة وموافقة على الأعضاء</span>
                         </div>
                     </div>
                 </div>
@@ -63,9 +93,9 @@
                         <div class="phone-top">
                             <div>
                                 <span class="status-dot"></span>
-                                مجتمع بيت المصور
+                                {{ system_settings.platform_name if system_settings is defined else "مجتمع بيت المصور" }}
                             </div>
-                            <small>الآن</small>
+                            <small>مباشر</small>
                         </div>
 
                         <div class="story-row">
@@ -89,12 +119,12 @@
                             </div>
 
                             <p>
-                                تجربة إضاءة ناعمة لتصوير منتج تجاري، أحتاج رأيكم في توزيع الظلال والخلفية.
+                                تجربة إضاءة ناعمة لتصوير منتج تجاري. أحتاج رأيكم في توزيع الظلال والخلفية.
                             </p>
 
                             <div class="post-actions-preview">
-                                <span>♡ 128</span>
-                                <span>💬 34</span>
+                                <span>♡ إعجاب</span>
+                                <span>💬 تعليق</span>
                                 <span>↗ مشاركة</span>
                             </div>
                         </div>
@@ -109,13 +139,13 @@
                             </div>
 
                             <p>
-                                ملاحظة ممتازة: جرّب تقليل مصدر الضوء الجانبي درجة واحدة للحصول على توازن أفضل.
+                                جرّب تقليل مصدر الضوء الجانبي درجة واحدة لتحصل على توازن أفضل بين المنتج والخلفية.
                             </p>
                         </div>
                     </div>
 
                     <div class="floating-badge badge-1">
-                        تقييمات من المدربين
+                        تقييمات وتعليقات
                     </div>
 
                     <div class="floating-badge badge-2">
@@ -131,10 +161,10 @@
 <section class="section-padding" id="features">
     <div class="container">
         <div class="section-header">
-            <span>لماذا هذا المجتمع؟</span>
-            <h2>منصة مصممة خصيصًا للمصورين</h2>
+            <span>مميزات المنصة</span>
+            <h2>كل ما يحتاجه المصور بعد الدورة في مكان واحد</h2>
             <p>
-                ليست شبكة اجتماعية عامة، بل مساحة متخصصة تساعد المتدرب والخريج على التطور وعرض أعماله بشكل احترافي.
+                المنصة ليست مجرد صفحة عرض، بل مجتمع عملي يساعد المتدرب والخريج على الاستمرار، النشر، التفاعل، وبناء حضور مهني حقيقي.
             </p>
         </div>
 
@@ -142,34 +172,54 @@
             <div class="col-md-6 col-lg-3">
                 <div class="feature-card">
                     <div class="feature-icon">📷</div>
-                    <h3>عرض الأعمال</h3>
-                    <p>كل مصور يشارك صوره وتجربته ويبدأ في بناء بورتفوليو واضح ومنظم.</p>
+                    <h3>نشر الأعمال</h3>
+                    <p>
+                        كل عضو يستطيع نشر صورة أو تجربة تصويرية مع وصف واضح، ليبدأ في بناء أرشيف أعماله داخل المجتمع.
+                    </p>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-3">
                 <div class="feature-card">
                     <div class="feature-icon">💬</div>
-                    <h3>تعليقات وتقييم</h3>
-                    <p>تفاعل بين الأعضاء والمدربين لتحسين المستوى الفني والتقني.</p>
+                    <h3>تعليقات وتفاعل</h3>
+                    <p>
+                        الأعضاء يتبادلون الملاحظات والتقييمات بطريقة تساعد على تحسين المستوى الفني والتقني.
+                    </p>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-3">
                 <div class="feature-card">
-                    <div class="feature-icon">🏆</div>
-                    <h3>تحديات مستقبلية</h3>
-                    <p>مسابقات تصوير وتحديات أسبوعية لرفع مستوى الالتزام والإبداع.</p>
+                    <div class="feature-icon">👤</div>
+                    <h3>بروفايل مصور</h3>
+                    <p>
+                        لكل مصور صفحة شخصية تعرض بياناته، تخصصه، مدينته، صوره، وروابط التواصل الخاصة به.
+                    </p>
                 </div>
             </div>
 
             <div class="col-md-6 col-lg-3">
                 <div class="feature-card">
-                    <div class="feature-icon">🤝</div>
-                    <h3>فرص وتعاون</h3>
-                    <p>تسهيل التعاون بين المصورين وربط المميزين بفرص عملية لاحقًا.</p>
+                    <div class="feature-icon">🛡️</div>
+                    <h3>مجتمع مغلق</h3>
+                    <p>
+                        الانضمام يتم بموافقة الإدارة للحفاظ على جودة المجتمع وخصوصيته لخريجي ومتدربي الأكاديمية.
+                    </p>
                 </div>
             </div>
+        </div>
+
+        <div class="text-center mt-5">
+            {% if current_user.is_authenticated and current_user.is_approved %}
+                <a href="{{ url_for('feed') }}" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                    ابدأ التفاعل داخل المجتمع
+                </a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                    أنشئ حسابك الآن
+                </a>
+            {% endif %}
         </div>
     </div>
 </section>
@@ -181,9 +231,9 @@
             <div class="col-lg-5">
                 <div class="section-header text-lg-end text-center mb-0">
                     <span>طريقة العمل</span>
-                    <h2>رحلة بسيطة من التسجيل إلى بناء الحضور المهني</h2>
+                    <h2>رحلة بسيطة من التسجيل إلى بناء حضورك كمصور</h2>
                     <p>
-                        المنصة تبدأ بنظام عضويات مغلق، ثم تتحول تدريجيًا إلى مجتمع تصوير احترافي مرتبط بالأكاديمية.
+                        المنصة مصممة لتكون سهلة: سجّل، انتظر الموافقة، ثم ابدأ بنشر أعمالك والتفاعل مع مجتمع المصورين.
                     </p>
                 </div>
             </div>
@@ -194,7 +244,9 @@
                         <div class="step-number">1</div>
                         <div>
                             <h4>إنشاء حساب</h4>
-                            <p>الخريج أو المتدرب يسجل بياناته الأساسية وتخصصه ومدينة عمله.</p>
+                            <p>
+                                سجّل باسمك، بريدك، مدينتك، وتخصصك في التصوير لتبدأ طلب الانضمام.
+                            </p>
                         </div>
                     </div>
 
@@ -202,25 +254,43 @@
                         <div class="step-number">2</div>
                         <div>
                             <h4>موافقة الإدارة</h4>
-                            <p>إدارة الأكاديمية توافق على العضوية للحفاظ على خصوصية وجودة المجتمع.</p>
+                            <p>
+                                تتم مراجعة الحسابات الجديدة لضمان أن المجتمع مخصص فعلًا لخريجي ومتدربي الأكاديمية.
+                            </p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-number">3</div>
                         <div>
-                            <h4>نشر الأعمال</h4>
-                            <p>المصور يرفع أعماله، يكتب ملاحظاته، ويتلقى تعليقات من الزملاء والمدربين.</p>
+                            <h4>نشر الصور والتجارب</h4>
+                            <p>
+                                شارك أعمالك، اكتب تفاصيل التجربة، واطلب ملاحظات محددة من الزملاء والمدربين.
+                            </p>
                         </div>
                     </div>
 
                     <div class="step-item">
                         <div class="step-number">4</div>
                         <div>
-                            <h4>تطور مستمر</h4>
-                            <p>تحديات، تقييمات، فرص، وبروفايل مهني يساعده في بناء اسمه في السوق.</p>
+                            <h4>بناء بروفايل مهني</h4>
+                            <p>
+                                مع كل منشور وتفاعل، يبدأ ملفك الشخصي في التحول إلى معرض أعمال حي ومتجدد.
+                            </p>
                         </div>
                     </div>
+                </div>
+
+                <div class="mt-4 text-center text-lg-start">
+                    {% if current_user.is_authenticated and current_user.is_approved %}
+                        <a href="{{ url_for('new_post') }}" class="btn btn-primary-custom rounded-pill px-4">
+                            انشر أول عمل الآن
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary-custom rounded-pill px-4">
+                            ابدأ التسجيل
+                        </a>
+                    {% endif %}
                 </div>
             </div>
 
@@ -233,21 +303,65 @@
         <div class="community-box">
             <div class="row align-items-center g-4">
                 <div class="col-lg-7">
-                    <span class="community-label">MVP v1</span>
-                    <h2>النسخة الأولى ستكون عملية وجاهزة للاستخدام</h2>
+                    <span class="community-label">المنصة تعمل الآن</span>
+                    <h2>مجتمع تصوير فعلي وليس مجرد فكرة</h2>
                     <p>
-                        سنبدأ بالأساسيات القوية: تسجيل، موافقة، Feed، منشورات، صور، لايكات، تعليقات، بروفايلات، ولوحة تحكم. بعد ذلك نضيف التحديات، الإشعارات، والمتابعة.
+                        المنصة الآن تحتوي على تسجيل وموافقة، منشورات، صور، لايكات، تعليقات، بروفايلات، صور شخصية وغلاف، ولوحة تحكم للأدمن. والخطوات القادمة ستضيف تخزين صور احترافي، تحديات، إشعارات، ومزايا أكثر للمصورين.
                     </p>
+
+                    <div class="hero-actions mt-4">
+                        {% if current_user.is_authenticated and current_user.is_approved %}
+                            <a href="{{ url_for('feed') }}" class="btn btn-primary-custom rounded-pill px-4">
+                                دخول المجتمع
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('register') }}" class="btn btn-primary-custom rounded-pill px-4">
+                                انضم للمجتمع
+                            </a>
+
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-light rounded-pill px-4">
+                                لدي حساب بالفعل
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="col-lg-5">
                     <div class="mvp-list">
-                        <div>تسجيل وموافقة الإدارة</div>
+                        <div>تسجيل مستخدمين وموافقة الإدارة</div>
                         <div>منشورات نص وصورة</div>
                         <div>لايكات وتعليقات</div>
-                        <div>بروفايل مصور</div>
-                        <div>لوحة تحكم Admin</div>
+                        <div>بروفايل مصور وصورة غلاف</div>
+                        <div>لوحة تحكم وإعدادات نظام</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding soft-section">
+    <div class="container">
+        <div class="community-box">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <span class="community-label">ابدأ الآن</span>
+                    <h2>حوّل مشاركاتك إلى معرض أعمال حي داخل مجتمع بيت المصور</h2>
+                    <p>
+                        سواء كنت متدربًا جديدًا أو خريجًا من الأكاديمية، هذه المنصة تساعدك على الاستمرار بعد الدورة، عرض أعمالك، والتطور من خلال التفاعل العملي.
+                    </p>
+                </div>
+
+                <div class="col-lg-4 text-lg-start text-center">
+                    {% if current_user.is_authenticated and current_user.is_approved %}
+                        <a href="{{ url_for('feed') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                            اذهب إلى المجتمع
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary-custom btn-lg rounded-pill px-4">
+                            سجل الآن
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
