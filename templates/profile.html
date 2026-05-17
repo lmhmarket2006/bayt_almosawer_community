@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.name }} | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <div class="profile-page-layout">
+
+            <div class="profile-main-area">
+                <div class="profile-hero-card">
+                    {% if user.cover_image %}
+                        <div 
+                            class="profile-cover profile-cover-image"
+                            style="background-image: url('{{ url_for('static', filename='uploads/covers/' ~ user.cover_image) }}');"
+                        >
+                            <div class="profile-cover-overlay"></div>
+                        </div>
+                    {% else %}
+                        <div class="profile-cover">
+                            <div class="profile-cover-glow"></div>
+                        </div>
+                    {% endif %}
+
+                    <div class="profile-info-block">
+                        <div class="profile-big-avatar">
+                            {% if user.avatar %}
+                                <img 
+                                    src="{{ url_for('static', filename='uploads/avatars/' ~ user.avatar) }}" 
+                                    alt="صورة {{ user.name }}"
+                                >
+                            {% else %}
+                                {{ user.name[:1] }}
+                            {% endif %}
+                        </div>
+
+                        <div class="profile-info-content">
+                            <div class="profile-title-row">
+                                <div>
+                                    <h1>{{ user.name }}</h1>
+                                    <p>@{{ user.username }}</p>
+                                </div>
+
+                                {% if current_user.id == user.id %}
+                                    <a href="{{ url_for('profile_settings') }}" class="btn btn-primary-custom rounded-pill px-4">
+                                        تعديل الملف
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <div class="profile-tags">
+                                {% if user.role == "admin" %}
+                                    <span class="role-badge role-admin">Admin</span>
+                                {% elif user.role == "trainer" %}
+                                    <span class="role-badge role-trainer">مدرب</span>
+                                {% else %}
+                                    <span class="role-badge role-member">عضو</span>
+                                {% endif %}
+
+                                {% if user.specialty %}
+                                    <span>{{ user.specialty }}</span>
+                                {% endif %}
+
+                                {% if user.city %}
+                                    <span>{{ user.city }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if user.bio %}
+                                <p class="profile-bio">{{ user.bio }}</p>
+                            {% else %}
+                                <p class="profile-bio muted-bio">
+                                    لم يكتب هذا العضو نبذة شخصية بعد.
+                                </p>
+                            {% endif %}
+
+                            <div class="profile-links">
+                                {% if user.instagram_url %}
+                                    <a href="{{ user.instagram_url }}" target="_blank" rel="noopener">
+                                        Instagram
+                                    </a>
+                                {% endif %}
+
+                                {% if user.whatsapp %}
+                                    <a href="https://wa.me/{{ user.whatsapp }}" target="_blank" rel="noopener">
+                                        WhatsApp
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-stats-grid">
+                    <div class="profile-stat-card">
+                        <span>المنشورات</span>
+                        <strong>{{ total_posts }}</strong>
+                    </div>
+
+                    <div class="profile-stat-card">
+                        <span>إجمالي الإعجابات</span>
+                        <strong>{{ total_likes }}</strong>
+                    </div>
+
+                    <div class="profile-stat-card">
+                        <span>إجمالي التعليقات</span>
+                        <strong>{{ total_comments }}</strong>
+                    </div>
+                </div>
+
+                <div class="profile-section-header">
+                    <div>
+                        <span>معرض الأعمال</span>
+                        <h2>منشورات {{ user.name }}</h2>
+                    </div>
+
+                    {% if current_user.id == user.id %}
+                        <a href="{{ url_for('new_post') }}" class="btn btn-outline-light rounded-pill px-4">
+                            + منشور جديد
+                        </a>
+                    {% endif %}
+                </div>
+
+                {% if user_posts %}
+                    <div class="posts-list">
+                        {% for post in user_posts %}
+                            <article class="social-post-card">
+                                <div class="social-post-header">
+                                    <a href="{{ url_for('profile', username=post.author.username) }}" class="post-author author-link">
+                                        <div class="post-author-avatar">
+                                            {% if post.author.avatar %}
+                                                <img 
+                                                    src="{{ url_for('static', filename='uploads/avatars/' ~ post.author.avatar) }}" 
+                                                    alt="صورة {{ post.author.name }}"
+                                                >
+                                            {% else %}
+                                                {{ post.author.name[:1] }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div>
+                                            <h3>{{ post.author.name }}</h3>
+                                            <p>
+                                                @{{ post.author.username }}
+
+                                                {% if post.author.specialty %}
+                                                    · {{ post.author.specialty }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </a>
+
+                                    <div class="post-date">
+                                        {{ post.created_at.strftime("%Y-%m-%d") }}
+                                    </div>
+                                </div>
+
+                                <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-content-link">
+                                    <div class="post-text">
+                                        {{ post.content }}
+                                    </div>
+
+                                    {% if post.image_filename %}
+                                        <div class="post-image-wrap">
+                                            <img
+                                                src="{{ url_for('static', filename='uploads/posts/' ~ post.image_filename) }}"
+                                                alt="صورة المنشور"
+                                                class="post-image"
+                                            >
+                                        </div>
+                                    {% endif %}
+                                </a>
+
+                                <div class="post-metrics">
+                                    <span>♡ {{ post.likes_count }} إعجاب</span>
+                                    <span>💬 {{ post.comments_count }} تعليق</span>
+                                </div>
+
+                                <div class="post-actions-row">
+                                    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}">
+                                        <input type="hidden" name="next" value="{{ url_for('profile', username=user.username) }}">
+
+                                        {% if post.id in liked_post_ids %}
+                                            <button type="submit" class="post-action-btn liked-action">
+                                                ♥ أعجبني
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="post-action-btn">
+                                                ♡ إعجاب
+                                            </button>
+                                        {% endif %}
+                                    </form>
+
+                                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-action-btn">
+                                        💬 تعليق
+                                    </a>
+
+                                    {% if post.user_id == current_user.id or current_user.is_admin %}
+                                        <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" onsubmit="return confirm('هل تريد حذف هذا المنشور؟');">
+                                            <button type="submit" class="post-action-btn danger-action">
+                                                حذف
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-feed-card">
+                        <div class="empty-icon">🖼️</div>
+
+                        {% if current_user.id == user.id %}
+                            <h2>لم تنشر أعمالك بعد</h2>
+                            <p>
+                                ابدأ الآن بإضافة أول منشور وصورة داخل مجتمع بيت المصور.
+                            </p>
+
+                            <a href="{{ url_for('new_post') }}" class="btn btn-primary-custom rounded-pill px-4 mt-3">
+                                إنشاء أول منشور
+                            </a>
+                        {% else %}
+                            <h2>لا توجد منشورات حتى الآن</h2>
+                            <p>
+                                لم يشارك هذا العضو أي أعمال داخل المجتمع حتى الآن.
+                            </p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <aside class="profile-sidebar">
+                <div class="side-box">
+                    <h5>بيانات العضو</h5>
+
+                    <div class="status-row">
+                        <span>الاسم</span>
+                        <strong>{{ user.name }}</strong>
+                    </div>
+
+                    <div class="status-row">
+                        <span>الدور</span>
+                        <strong>{{ user.role }}</strong>
+                    </div>
+
+                    {% if user.city %}
+                        <div class="status-row">
+                            <span>المدينة</span>
+                            <strong>{{ user.city }}</strong>
+                        </div>
+                    {% endif %}
+
+                    {% if user.specialty %}
+                        <div class="status-row">
+                            <span>التخصص</span>
+                            <strong>{{ user.specialty }}</strong>
+                        </div>
+                    {% endif %}
+
+                    <div class="status-row">
+                        <span>تاريخ الانضمام</span>
+                        <strong>{{ user.created_at.strftime("%Y-%m-%d") }}</strong>
+                    </div>
+                </div>
+
+                <div class="side-box">
+                    <h5>روابط سريعة</h5>
+                    <ul>
+                        <li><a href="{{ url_for('feed') }}">العودة للمجتمع</a></li>
+
+                        {% if current_user.id == user.id %}
+                            <li><a href="{{ url_for('profile_settings') }}">تعديل الملف الشخصي</a></li>
+                            <li><a href="{{ url_for('new_post') }}">إضافة منشور جديد</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </aside>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

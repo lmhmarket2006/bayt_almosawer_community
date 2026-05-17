@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}خطأ في الخادم | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="error-section">
+    <div class="container">
+        <div class="error-card">
+            <div class="error-code">500</div>
+
+            <h1>حدث خطأ غير متوقع</h1>
+
+            <p>
+                حدث خطأ أثناء تنفيذ الطلب. جرّب تحديث الصفحة، وإذا استمرت المشكلة أرسل اللوج من CMD لنقوم بإصلاحه خطوة بخطوة.
+            </p>
+
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <a href="{{ url_for('index') }}" class="btn btn-primary-custom rounded-pill px-4">
+                    الصفحة الرئيسية
+                </a>
+
+                {% if current_user.is_authenticated and current_user.is_approved %}
+                    <a href="{{ url_for('feed') }}" class="btn btn-outline-light rounded-pill px-4">
+                        العودة للمجتمع
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

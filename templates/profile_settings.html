@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}تعديل الملف الشخصي | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <div class="settings-layout">
+            <div class="settings-card">
+                <div class="post-form-header">
+                    <span>إعدادات الحساب</span>
+                    <h1>تعديل الملف الشخصي</h1>
+                    <p>
+                        حدّث بياناتك المهنية وصورك ليظهر ملفك بشكل أفضل داخل مجتمع بيت المصور.
+                    </p>
+                </div>
+
+                <form 
+                    method="POST" 
+                    action="{{ url_for('profile_settings') }}" 
+                    class="auth-form"
+                    enctype="multipart/form-data"
+                >
+                    <div class="profile-upload-preview">
+                        <div class="preview-cover">
+                            {% if current_user.cover_image %}
+                                <img 
+                                    src="{{ url_for('static', filename='uploads/covers/' ~ current_user.cover_image) }}" 
+                                    alt="صورة الغلاف الحالية"
+                                >
+                            {% else %}
+                                <div class="preview-cover-placeholder">
+                                    صورة الغلاف
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="preview-avatar">
+                            {% if current_user.avatar %}
+                                <img 
+                                    src="{{ url_for('static', filename='uploads/avatars/' ~ current_user.avatar) }}" 
+                                    alt="الصورة الشخصية الحالية"
+                                >
+                            {% else %}
+                                {{ current_user.name[:1] }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label">الصورة الشخصية</label>
+                            <input
+                                type="file"
+                                name="avatar"
+                                class="form-control custom-input"
+                                accept=".png,.jpg,.jpeg,.gif,.webp"
+                            >
+                            <small class="form-help">اختياري — PNG, JPG, JPEG, GIF, WEBP.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">صورة الغلاف</label>
+                            <input
+                                type="file"
+                                name="cover_image"
+                                class="form-control custom-input"
+                                accept=".png,.jpg,.jpeg,.gif,.webp"
+                            >
+                            <small class="form-help">اختياري — يفضل صورة عريضة.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">الاسم الكامل *</label>
+                            <input
+                                type="text"
+                                name="name"
+                                class="form-control custom-input"
+                                value="{{ current_user.name }}"
+                                required
+                            >
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">اسم المستخدم</label>
+                            <input
+                                type="text"
+                                class="form-control custom-input"
+                                value="{{ current_user.username }}"
+                                disabled
+                            >
+                            <small class="form-help">اسم المستخدم لا يمكن تغييره حاليًا.</small>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">المدينة</label>
+                            <input
+                                type="text"
+                                name="city"
+                                class="form-control custom-input"
+                                value="{{ current_user.city or '' }}"
+                                placeholder="مثال: جدة"
+                            >
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">التخصص</label>
+                            <select name="specialty" class="form-select custom-input">
+                                {% set current_specialty = current_user.specialty or '' %}
+
+                                <option value="" {% if current_specialty == '' %}selected{% endif %}>اختر التخصص</option>
+                                <option value="تصوير منتجات" {% if current_specialty == 'تصوير منتجات' %}selected{% endif %}>تصوير منتجات</option>
+                                <option value="تصوير بورتريه" {% if current_specialty == 'تصوير بورتريه' %}selected{% endif %}>تصوير بورتريه</option>
+                                <option value="تصوير مناسبات" {% if current_specialty == 'تصوير مناسبات' %}selected{% endif %}>تصوير مناسبات</option>
+                                <option value="تصوير أطعمة" {% if current_specialty == 'تصوير أطعمة' %}selected{% endif %}>تصوير أطعمة</option>
+                                <option value="تصوير إعلاني" {% if current_specialty == 'تصوير إعلاني' %}selected{% endif %}>تصوير إعلاني</option>
+                                <option value="تصوير عام" {% if current_specialty == 'تصوير عام' %}selected{% endif %}>تصوير عام</option>
+                                <option value="مدرب تصوير" {% if current_specialty == 'مدرب تصوير' %}selected{% endif %}>مدرب تصوير</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">رابط إنستغرام</label>
+                            <input
+                                type="url"
+                                name="instagram_url"
+                                class="form-control custom-input"
+                                value="{{ current_user.instagram_url or '' }}"
+                                placeholder="https://instagram.com/username"
+                            >
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">رقم واتساب</label>
+                            <input
+                                type="text"
+                                name="whatsapp"
+                                class="form-control custom-input"
+                                value="{{ current_user.whatsapp or '' }}"
+                                placeholder="9665xxxxxxxx"
+                            >
+                            <small class="form-help">اكتب الرقم بصيغة دولية بدون + مثل: 966548599988</small>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">نبذة شخصية</label>
+                            <textarea
+                                name="bio"
+                                class="form-control custom-input post-textarea"
+                                rows="6"
+                                placeholder="اكتب نبذة قصيرة عنك، تخصصك، خبرتك، ونوع التصوير الذي تقدمه..."
+                            >{{ current_user.bio or '' }}</textarea>
+                            <small class="form-help">الحد الأقصى 700 حرف.</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap mt-4">
+                        <button type="submit" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                            حفظ التعديلات
+                        </button>
+
+                        <a href="{{ url_for('profile', username=current_user.username) }}" class="btn btn-outline-light rounded-pill px-4 py-3">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <aside class="settings-side-card">
+                <div class="profile-mini-card compact-profile">
+                    <div class="profile-mini-avatar">
+                        {% if current_user.avatar %}
+                            <img 
+                                src="{{ url_for('static', filename='uploads/avatars/' ~ current_user.avatar) }}" 
+                                alt="صورة {{ current_user.name }}"
+                            >
+                        {% else %}
+                            {{ current_user.name[:1] }}
+                        {% endif %}
+                    </div>
+
+                    <h5>{{ current_user.name }}</h5>
+                    <p>@{{ current_user.username }}</p>
+
+                    {% if current_user.specialty %}
+                        <span>{{ current_user.specialty }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="side-box mt-3">
+                    <h5>نصائح الملف الشخصي</h5>
+                    <ul>
+                        <li>استخدم صورة شخصية واضحة.</li>
+                        <li>اختر غلافًا يعبر عن أسلوبك في التصوير.</li>
+                        <li>اكتب تخصصك بوضوح.</li>
+                        <li>أضف رابط إنستغرام وواتساب إن أردت فرص تعاون.</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

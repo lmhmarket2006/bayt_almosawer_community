@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة الإدارة | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div>
+                <span>لوحة التحكم</span>
+                <h1>إدارة مجتمع بيت المصور</h1>
+                <p>
+                    نظرة شاملة على المستخدمين، حالات الحسابات، وإدارة مجتمع خريجي ومتدربي الأكاديمية.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <a href="{{ url_for('admin_users') }}" class="btn btn-primary-custom rounded-pill px-4">
+                    إدارة المستخدمين
+                </a>
+
+                <a href="{{ url_for('feed') }}" class="btn btn-outline-light rounded-pill px-4">
+                    العودة للمجتمع
+                </a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users') }}" class="admin-stat-card stat-link">
+                    <span>إجمالي المستخدمين</span>
+                    <strong>{{ total_users }}</strong>
+                    <small>عرض جميع الحسابات</small>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='pending') }}" class="admin-stat-card stat-link">
+                    <span>بانتظار الموافقة</span>
+                    <strong>{{ pending_users }}</strong>
+                    <small>حسابات تحتاج مراجعة</small>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='approved') }}" class="admin-stat-card stat-link">
+                    <span>مقبولون</span>
+                    <strong>{{ approved_users }}</strong>
+                    <small>أعضاء يمكنهم دخول المجتمع</small>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='blocked') }}" class="admin-stat-card stat-link">
+                    <span>موقوفون</span>
+                    <strong>{{ blocked_users }}</strong>
+                    <small>حسابات تم إيقافها</small>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="admin-table-card mb-4">
+            <div class="admin-table-header">
+                <h2>إجراءات سريعة</h2>
+                <span>اختصارات لإدارة المجتمع</span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin_users', status='pending') }}" class="quick-admin-action">
+                        <div class="quick-action-icon">⏳</div>
+                        <div>
+                            <strong>مراجعة طلبات الانضمام</strong>
+                            <span>قبول أو رفض الحسابات الجديدة</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin_users', role='trainer') }}" class="quick-admin-action">
+                        <div class="quick-action-icon">🎓</div>
+                        <div>
+                            <strong>إدارة المدربين</strong>
+                            <span>عرض حسابات المدربين داخل المجتمع</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="col-md-4">
+                    <a href="{{ url_for('admin_users', status='blocked') }}" class="quick-admin-action">
+                        <div class="quick-action-icon">🚫</div>
+                        <div>
+                            <strong>الحسابات الموقوفة</strong>
+                            <span>مراجعة وإعادة تفعيل الحسابات</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latest Users Table -->
+        <div class="admin-table-card">
+            <div class="admin-table-header">
+                <h2>آخر المستخدمين</h2>
+
+                <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                    عرض الكل
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table">
+                    <thead>
+                        <tr>
+                            <th>المستخدم</th>
+                            <th>البريد</th>
+                            <th>الدور</th>
+                            <th>الحالة</th>
+                            <th>تاريخ التسجيل</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in latest_users %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar-sm">
+                                            {{ user.name[:1] }}
+                                        </div>
+
+                                        <div>
+                                            <strong>{{ user.name }}</strong>
+                                            <span>@{{ user.username }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-meta">
+                                        <span>{{ user.email }}</span>
+
+                                        {% if user.city %}
+                                            <small>{{ user.city }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if user.role == "admin" %}
+                                        <span class="role-badge role-admin">Admin</span>
+                                    {% elif user.role == "trainer" %}
+                                        <span class="role-badge role-trainer">مدرب</span>
+                                    {% else %}
+                                        <span class="role-badge role-member">عضو</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.status == "approved" %}
+                                        <span class="status-badge status-approved">مقبول</span>
+                                    {% elif user.status == "pending" %}
+                                        <span class="status-badge status-pending">بانتظار</span>
+                                    {% else %}
+                                        <span class="status-badge status-blocked">موقوف</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {{ user.created_at.strftime("%Y-%m-%d") }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    لا يوجد مستخدمون حتى الآن.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

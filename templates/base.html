@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}مجتمع بيت المصور{% endblock %}</title>
+
+    <meta name="description" content="مجتمع خاص بخريجي ومتدربي أكاديمية بيت المصور لعرض الأعمال، التفاعل، التقييم، والتطور المهني في عالم التصوير.">
+
+    <!-- Bootstrap RTL -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+
+    <!-- Google Font: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg main-navbar fixed-top">
+        <div class="container">
+
+            <a class="navbar-brand brand-logo" href="/">
+                <img
+                    src="{{ url_for('static', filename='images/logo.png') }}"
+                    alt="شعار أكاديمية بيت المصور"
+                    class="brand-image"
+                >
+                <span>مجتمع بيت المصور</span>
+            </a>
+
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="فتح القائمة">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="/">الرئيسية</a>
+                    </li>
+
+                    {% if current_user.is_authenticated and current_user.is_approved %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'feed' %}active{% endif %}" href="{{ url_for('feed') }}">المجتمع</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/#features">المميزات</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="/#how-it-works">طريقة العمل</a>
+                        </li>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'admin_dashboard' %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">لوحة الإدارة</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}" href="{{ url_for('admin_users') }}">المستخدمون</a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <div class="d-flex gap-2 navbar-actions">
+                    {% if current_user.is_authenticated %}
+                        <span class="user-chip d-none d-lg-inline-flex">
+                            {{ current_user.name }}
+                        </span>
+
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            خروج
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            تسجيل الدخول
+                        </a>
+
+                        <a href="{{ url_for('register') }}" class="btn btn-primary-custom btn-sm rounded-pill px-3">
+                            انضم الآن
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="flash-wrapper">
+            <div class="container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} custom-alert alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-card">
+                <div>
+                    <h5>مجتمع بيت المصور</h5>
+                    <p>
+                        مساحة مهنية لخريجي ومتدربي الأكاديمية لعرض الأعمال، تبادل الخبرات، وبناء حضور احترافي في عالم التصوير.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <a href="/">الرئيسية</a>
+                    {% if current_user.is_authenticated and current_user.is_approved %}
+                        <a href="{{ url_for('feed') }}">المجتمع</a>
+                    {% else %}
+                        <a href="/#features">المميزات</a>
+                        <a href="/#how-it-works">طريقة العمل</a>
+                    {% endif %}
+
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                        <a href="{{ url_for('admin_dashboard') }}">الإدارة</a>
+                        <a href="{{ url_for('admin_users') }}">المستخدمون</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="footer-copy">
+                © 2026 بيت المصور. جميع الحقوق محفوظة.
+            </div>
+        </div>
+    </footer>
+
+    <div class="mobile-bottom-nav">
+        <a href="/" class="{% if request.endpoint == 'index' %}active{% endif %}">
+            <span>⌂</span>
+            <small>الرئيسية</small>
+        </a>
+
+        {% if current_user.is_authenticated and current_user.is_approved %}
+            <a href="{{ url_for('feed') }}" class="{% if request.endpoint == 'feed' %}active{% endif %}">
+                <span>◎</span>
+                <small>المجتمع</small>
+            </a>
+
+<a href="{{ url_for('new_post') }}" class="add-button">
+    <span>＋</span>
+    <small>انشر</small>
+</a>
+            {% if current_user.is_admin %}
+                <a href="{{ url_for('admin_users') }}" class="{% if request.endpoint == 'admin_users' %}active{% endif %}">
+                    <span>👥</span>
+                    <small>الأعضاء</small>
+                </a>
+{% else %}
+    <a href="{{ url_for('profile', username=current_user.username) }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
+        <span>☻</span>
+        <small>حسابي</small>
+    </a>
+{% endif %}
+            <a href="{{ url_for('logout') }}">
+                <span>↩</span>
+                <small>خروج</small>
+            </a>
+        {% else %}
+            <a href="/#features">
+                <span>✦</span>
+                <small>المميزات</small>
+            </a>
+
+            <a href="{{ url_for('register') }}" class="add-button">
+                <span>＋</span>
+                <small>انضم</small>
+            </a>
+
+            <a href="/#community">
+                <span>◎</span>
+                <small>المجتمع</small>
+            </a>
+
+            <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">
+                <span>☻</span>
+                <small>دخول</small>
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Main JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

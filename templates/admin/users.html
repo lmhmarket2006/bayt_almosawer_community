@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}إدارة المستخدمين | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <div class="admin-header">
+            <div>
+                <span>إدارة الأعضاء</span>
+                <h1>المستخدمون والموافقات</h1>
+                <p>قبول الحسابات الجديدة، إيقاف الحسابات، وتحديد أدوار الأعضاء والمدربين.</p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light rounded-pill px-4">
+                    لوحة الإدارة
+                </a>
+
+                <a href="{{ url_for('feed') }}" class="btn btn-primary-custom rounded-pill px-4">
+                    المجتمع
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users') }}" class="admin-stat-card stat-link {% if status_filter == 'all' and role_filter == 'all' %}active-stat{% endif %}">
+                    <span>الكل</span>
+                    <strong>{{ stats.total }}</strong>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='pending') }}" class="admin-stat-card stat-link {% if status_filter == 'pending' %}active-stat{% endif %}">
+                    <span>بانتظار الموافقة</span>
+                    <strong>{{ stats.pending }}</strong>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='approved') }}" class="admin-stat-card stat-link {% if status_filter == 'approved' %}active-stat{% endif %}">
+                    <span>مقبولون</span>
+                    <strong>{{ stats.approved }}</strong>
+                </a>
+            </div>
+
+            <div class="col-6 col-lg-3">
+                <a href="{{ url_for('admin_users', status='blocked') }}" class="admin-stat-card stat-link {% if status_filter == 'blocked' %}active-stat{% endif %}">
+                    <span>موقوفون</span>
+                    <strong>{{ stats.blocked }}</strong>
+                </a>
+            </div>
+        </div>
+
+        <div class="admin-filter-card">
+            <form method="GET" action="{{ url_for('admin_users') }}" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">بحث</label>
+                    <input 
+                        type="text" 
+                        name="q" 
+                        class="form-control custom-input" 
+                        placeholder="ابحث بالاسم، البريد، المدينة، التخصص"
+                        value="{{ search_query }}"
+                    >
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">الحالة</label>
+                    <select name="status" class="form-select custom-input">
+                        <option value="all" {% if status_filter == 'all' %}selected{% endif %}>كل الحالات</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>بانتظار الموافقة</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>مقبول</option>
+                        <option value="blocked" {% if status_filter == 'blocked' %}selected{% endif %}>موقوف</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">الدور</label>
+                    <select name="role" class="form-select custom-input">
+                        <option value="all" {% if role_filter == 'all' %}selected{% endif %}>كل الأدوار</option>
+                        <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+                        <option value="trainer" {% if role_filter == 'trainer' %}selected{% endif %}>مدرب</option>
+                        <option value="member" {% if role_filter == 'member' %}selected{% endif %}>عضو</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary-custom w-100 rounded-pill py-3">
+                        تطبيق
+                    </button>
+                </div>
+            </form>
+
+            {% if search_query or status_filter != 'all' or role_filter != 'all' %}
+                <div class="mt-3">
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                        مسح الفلاتر
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="admin-table-card">
+            <div class="admin-table-header">
+                <h2>قائمة المستخدمين</h2>
+                <span>{{ users|length }} نتيجة</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle custom-table users-table">
+                    <thead>
+                        <tr>
+                            <th>المستخدم</th>
+                            <th>بيانات التواصل</th>
+                            <th>التخصص</th>
+                            <th>الدور</th>
+                            <th>الحالة</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="user-avatar-sm">
+                                            {{ user.name[:1] }}
+                                        </div>
+
+                                        <div>
+                                            <strong>{{ user.name }}</strong>
+                                            <span>@{{ user.username }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="table-meta">
+                                        <span>{{ user.email }}</span>
+                                        {% if user.city %}
+                                            <small>{{ user.city }}</small>
+                                        {% endif %}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    {% if user.specialty %}
+                                        {{ user.specialty }}
+                                    {% else %}
+                                        <span class="text-muted">غير محدد</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.role == "admin" %}
+                                        <span class="role-badge role-admin">Admin</span>
+                                    {% elif user.role == "trainer" %}
+                                        <span class="role-badge role-trainer">مدرب</span>
+                                    {% else %}
+                                        <span class="role-badge role-member">عضو</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>
+                                    {% if user.status == "approved" %}
+                                        <span class="status-badge status-approved">مقبول</span>
+                                    {% elif user.status == "pending" %}
+                                        <span class="status-badge status-pending">بانتظار</span>
+                                    {% else %}
+                                        <span class="status-badge status-blocked">موقوف</span>
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ user.created_at.strftime("%Y-%m-%d") }}</td>
+
+                                <td>
+                                    <div class="user-actions">
+                                        {% if user.status == "pending" %}
+                                            <form method="POST" action="{{ url_for('admin_approve_user', user_id=user.id) }}">
+                                                <button type="submit" class="btn btn-sm action-btn action-success">
+                                                    قبول
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.status == "blocked" %}
+                                            <form method="POST" action="{{ url_for('admin_reactivate_user', user_id=user.id) }}">
+                                                <button type="submit" class="btn btn-sm action-btn action-success">
+                                                    تفعيل
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.status != "blocked" and user.id != current_user.id %}
+                                            <form method="POST" action="{{ url_for('admin_block_user', user_id=user.id) }}" onsubmit="return confirm('هل أنت متأكد من إيقاف هذا الحساب؟');">
+                                                <button type="submit" class="btn btn-sm action-btn action-danger">
+                                                    إيقاف
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.role == "member" %}
+                                            <form method="POST" action="{{ url_for('admin_make_trainer', user_id=user.id) }}">
+                                                <button type="submit" class="btn btn-sm action-btn action-info">
+                                                    جعله مدرب
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.role == "trainer" %}
+                                            <form method="POST" action="{{ url_for('admin_make_member', user_id=user.id) }}">
+                                                <button type="submit" class="btn btn-sm action-btn action-muted">
+                                                    جعله عضو
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.role != "admin" %}
+                                            <form method="POST" action="{{ url_for('admin_make_admin', user_id=user.id) }}" onsubmit="return confirm('هل تريد ترقية هذا المستخدم إلى Admin؟');">
+                                                <button type="submit" class="btn btn-sm action-btn action-admin">
+                                                    Admin
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.role == "admin" and user.id != current_user.id %}
+                                            <form method="POST" action="{{ url_for('admin_make_member', user_id=user.id) }}" onsubmit="return confirm('هل تريد تحويل هذا الأدمن إلى عضو؟');">
+                                                <button type="submit" class="btn btn-sm action-btn action-muted">
+                                                    إزالة Admin
+                                                </button>
+                                            </form>
+                                        {% endif %}
+
+                                        {% if user.id == current_user.id %}
+                                            <span class="self-badge">حسابك</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    لا توجد نتائج مطابقة.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

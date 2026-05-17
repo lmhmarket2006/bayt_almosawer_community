@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}المجتمع | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+        <div class="app-layout">
+
+            <aside class="app-sidebar d-none d-lg-block">
+                <div class="profile-mini-card">
+                    <a href="{{ url_for('profile', username=current_user.username) }}" class="profile-mini-link">
+                        <div class="profile-mini-avatar">
+                            {% if current_user.avatar %}
+                                <img 
+                                    src="{{ url_for('static', filename='uploads/avatars/' ~ current_user.avatar) }}" 
+                                    alt="صورة {{ current_user.name }}"
+                                >
+                            {% else %}
+                                {{ current_user.name[:1] }}
+                            {% endif %}
+                        </div>
+
+                        <h5>{{ current_user.name }}</h5>
+                        <p>@{{ current_user.username }}</p>
+                    </a>
+
+                    {% if current_user.specialty %}
+                        <span>{{ current_user.specialty }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="side-menu">
+                    <a href="{{ url_for('feed') }}" class="active">المجتمع</a>
+                    <a href="{{ url_for('new_post') }}">منشور جديد</a>
+                    <a href="{{ url_for('profile', username=current_user.username) }}">ملفي الشخصي</a>
+                    <a href="{{ url_for('profile_settings') }}">تعديل الملف</a>
+                    <a href="#" class="disabled-link">المحفوظات</a>
+                    <a href="#" class="disabled-link">التحديات</a>
+
+                    {% if current_user.is_admin %}
+                        <a href="{{ url_for('admin_dashboard') }}">لوحة الإدارة</a>
+                        <a href="{{ url_for('admin_users') }}">المستخدمون</a>
+                    {% endif %}
+                </div>
+            </aside>
+
+            <main class="feed-main">
+                <div class="feed-welcome-card">
+                    <div>
+                        <span>أهلًا {{ current_user.name }}</span>
+                        <h1>مجتمع بيت المصور</h1>
+                        <p>
+                            شارك أعمالك، اطلب رأي الزملاء والمدربين، وتابع تطور مجتمع المصورين.
+                        </p>
+                    </div>
+
+                    <a href="{{ url_for('new_post') }}" class="btn btn-primary-custom rounded-pill px-4">
+                        + منشور جديد
+                    </a>
+                </div>
+
+                <a href="{{ url_for('new_post') }}" class="composer-placeholder">
+                    <div class="composer-avatar">
+                        {% if current_user.avatar %}
+                            <img 
+                                src="{{ url_for('static', filename='uploads/avatars/' ~ current_user.avatar) }}" 
+                                alt="صورة {{ current_user.name }}"
+                            >
+                        {% else %}
+                            {{ current_user.name[:1] }}
+                        {% endif %}
+                    </div>
+
+                    <div class="composer-box">
+                        ماذا تريد أن تشارك مع مجتمع المصورين؟
+                    </div>
+                </a>
+
+                {% if posts %}
+                    <div class="posts-list">
+                        {% for post in posts %}
+                            <article class="social-post-card">
+                                <div class="social-post-header">
+                                    <a href="{{ url_for('profile', username=post.author.username) }}" class="post-author author-link">
+                                        <div class="post-author-avatar">
+                                            {% if post.author.avatar %}
+                                                <img 
+                                                    src="{{ url_for('static', filename='uploads/avatars/' ~ post.author.avatar) }}" 
+                                                    alt="صورة {{ post.author.name }}"
+                                                >
+                                            {% else %}
+                                                {{ post.author.name[:1] }}
+                                            {% endif %}
+                                        </div>
+
+                                        <div>
+                                            <h3>{{ post.author.name }}</h3>
+                                            <p>
+                                                @{{ post.author.username }}
+
+                                                {% if post.author.specialty %}
+                                                    · {{ post.author.specialty }}
+                                                {% endif %}
+
+                                                {% if post.author.city %}
+                                                    · {{ post.author.city }}
+                                                {% endif %}
+                                            </p>
+                                        </div>
+                                    </a>
+
+                                    <div class="post-date">
+                                        {{ post.created_at.strftime("%Y-%m-%d") }}
+                                    </div>
+                                </div>
+
+                                <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-content-link">
+                                    <div class="post-text">
+                                        {{ post.content }}
+                                    </div>
+
+                                    {% if post.image_filename %}
+                                        <div class="post-image-wrap">
+                                            <img
+                                                src="{{ url_for('static', filename='uploads/posts/' ~ post.image_filename) }}"
+                                                alt="صورة المنشور"
+                                                class="post-image"
+                                            >
+                                        </div>
+                                    {% endif %}
+                                </a>
+
+                                <div class="post-metrics">
+                                    <span>♡ {{ post.likes_count }} إعجاب</span>
+                                    <span>💬 {{ post.comments_count }} تعليق</span>
+                                </div>
+
+                                <div class="post-actions-row">
+                                    <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}">
+                                        <input type="hidden" name="next" value="{{ url_for('feed') }}">
+
+                                        {% if post.id in liked_post_ids %}
+                                            <button type="submit" class="post-action-btn liked-action">
+                                                ♥ أعجبني
+                                            </button>
+                                        {% else %}
+                                            <button type="submit" class="post-action-btn">
+                                                ♡ إعجاب
+                                            </button>
+                                        {% endif %}
+                                    </form>
+
+                                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-action-btn">
+                                        💬 تعليق
+                                    </a>
+
+                                    <button class="post-action-btn disabled-link">
+                                        🔖 حفظ قريبًا
+                                    </button>
+
+                                    {% if post.user_id == current_user.id or current_user.is_admin %}
+                                        <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" onsubmit="return confirm('هل تريد حذف هذا المنشور؟');">
+                                            <button type="submit" class="post-action-btn danger-action">
+                                                حذف
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-feed-card">
+                        <div class="empty-icon">📷</div>
+                        <h2>لا توجد منشورات حتى الآن</h2>
+                        <p>
+                            كن أول من يشارك عملًا داخل مجتمع بيت المصور. ارفع صورة، اكتب تجربتك، وابدأ التفاعل مع المصورين.
+                        </p>
+
+                        <a href="{{ url_for('new_post') }}" class="btn btn-primary-custom rounded-pill px-4 mt-3">
+                            إنشاء أول منشور
+                        </a>
+                    </div>
+                {% endif %}
+            </main>
+
+            <aside class="app-sidebar d-none d-xl-block">
+                <div class="side-box">
+                    <h5>حالة الحساب</h5>
+
+                    <div class="status-row">
+                        <span>الدور</span>
+                        <strong>{{ current_user.role }}</strong>
+                    </div>
+
+                    <div class="status-row">
+                        <span>الحالة</span>
+                        <strong class="status-approved">approved</strong>
+                    </div>
+                </div>
+
+                <div class="side-box">
+                    <h5>روابط سريعة</h5>
+                    <ul>
+                        <li><a href="{{ url_for('profile', username=current_user.username) }}">عرض ملفي الشخصي</a></li>
+                        <li><a href="{{ url_for('profile_settings') }}">تعديل بياناتي</a></li>
+                        <li><a href="{{ url_for('new_post') }}">إنشاء منشور جديد</a></li>
+                    </ul>
+                </div>
+
+                <div class="side-box">
+                    <h5>نصائح النشر</h5>
+                    <ul>
+                        <li>اكتب فكرة الصورة أو التجربة.</li>
+                        <li>اذكر نوع الإضاءة أو العدسة إن أمكن.</li>
+                        <li>اطلب تقييمًا محددًا من الزملاء.</li>
+                        <li>لا تنشر أعمالًا لا تملك حقوقها.</li>
+                    </ul>
+                </div>
+            </aside>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

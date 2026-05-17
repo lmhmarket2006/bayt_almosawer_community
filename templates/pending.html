@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}حسابك بانتظار الموافقة | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="state-section">
+    <div class="container">
+        <div class="state-card">
+            <div class="state-icon">⏳</div>
+
+            <h1>حسابك بانتظار موافقة الإدارة</h1>
+
+            <p>
+                شكرًا لانضمامك إلى مجتمع بيت المصور. حسابك تم إنشاؤه بنجاح، لكنه يحتاج إلى مراجعة وموافقة من إدارة الأكاديمية قبل الدخول إلى المجتمع.
+            </p>
+
+            <div class="state-info">
+                <div>
+                    <strong>الاسم:</strong>
+                    <span>{{ current_user.name }}</span>
+                </div>
+
+                <div>
+                    <strong>البريد:</strong>
+                    <span>{{ current_user.email }}</span>
+                </div>
+
+                <div>
+                    <strong>الحالة:</strong>
+                    <span class="status-badge status-pending">بانتظار الموافقة</span>
+                </div>
+            </div>
+
+            <a href="{{ url_for('logout') }}" class="btn btn-outline-light rounded-pill px-4 mt-4">
+                تسجيل الخروج
+            </a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

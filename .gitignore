@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Flask / Instance
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads - keep folders, ignore uploaded files
+static/uploads/posts/*
+static/uploads/avatars/*
+static/uploads/covers/*
+
+!static/uploads/posts/.gitkeep
+!static/uploads/avatars/.gitkeep
+!static/uploads/covers/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Railway / local cache
+.cache/
+# Executable / installer files
+*.exe
+*.msi
+*.bat
+*.cmd

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء حساب | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card auth-card-wide">
+            <div class="auth-header">
+                <span>انضم إلى المجتمع</span>
+                <h1>إنشاء حساب جديد</h1>
+                <p>سجّل بياناتك، وسيتم تفعيل الحساب بعد موافقة إدارة أكاديمية بيت المصور.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">الاسم الكامل *</label>
+                        <input type="text" name="name" class="form-control custom-input" placeholder="مثال: محمد سعيد" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">اسم المستخدم *</label>
+                        <input type="text" name="username" class="form-control custom-input" placeholder="مثال: mohamed_photo" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">البريد الإلكتروني *</label>
+                        <input type="email" name="email" class="form-control custom-input" placeholder="example@email.com" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">المدينة</label>
+                        <input type="text" name="city" class="form-control custom-input" placeholder="مثال: جدة">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">التخصص</label>
+                        <select name="specialty" class="form-select custom-input">
+                            <option value="">اختر التخصص</option>
+                            <option value="تصوير منتجات">تصوير منتجات</option>
+                            <option value="تصوير بورتريه">تصوير بورتريه</option>
+                            <option value="تصوير مناسبات">تصوير مناسبات</option>
+                            <option value="تصوير أطعمة">تصوير أطعمة</option>
+                            <option value="تصوير إعلاني">تصوير إعلاني</option>
+                            <option value="تصوير عام">تصوير عام</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">كلمة المرور *</label>
+                        <input type="password" name="password" class="form-control custom-input" placeholder="6 أحرف على الأقل" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">تأكيد كلمة المرور *</label>
+                        <input type="password" name="confirm_password" class="form-control custom-input" placeholder="أعد كتابة كلمة المرور" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 rounded-pill py-3 mt-4">
+                    إنشاء الحساب
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                لديك حساب بالفعل؟
+                <a href="{{ url_for('login') }}">تسجيل الدخول</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل المنشور | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+
+        <div class="post-detail-layout">
+            <div>
+                <a href="{{ url_for('feed') }}" class="btn btn-outline-light rounded-pill px-4 mb-3">
+                    الرجوع للمجتمع
+                </a>
+
+                <article class="social-post-card post-detail-card">
+                    <div class="social-post-header">
+                        <a href="{{ url_for('profile', username=post.author.username) }}" class="post-author author-link">
+                            <div class="post-author-avatar">
+                                {% if post.author.avatar %}
+                                    <img 
+                                        src="{{ url_for('static', filename='uploads/avatars/' ~ post.author.avatar) }}" 
+                                        alt="صورة {{ post.author.name }}"
+                                    >
+                                {% else %}
+                                    {{ post.author.name[:1] }}
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <h3>{{ post.author.name }}</h3>
+                                <p>
+                                    @{{ post.author.username }}
+
+                                    {% if post.author.specialty %}
+                                        · {{ post.author.specialty }}
+                                    {% endif %}
+
+                                    {% if post.author.city %}
+                                        · {{ post.author.city }}
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+
+                        <div class="post-date">
+                            {{ post.created_at.strftime("%Y-%m-%d %H:%M") }}
+                        </div>
+                    </div>
+
+                    <div class="post-text detail-text">
+                        {{ post.content }}
+                    </div>
+
+                    {% if post.image_filename %}
+                        <div class="post-image-wrap detail-image-wrap">
+                            <img
+                                src="{{ url_for('static', filename='uploads/posts/' ~ post.image_filename) }}"
+                                alt="صورة المنشور"
+                                class="post-image"
+                            >
+                        </div>
+                    {% endif %}
+
+                    <div class="post-metrics">
+                        <span>♡ {{ post.likes_count }} إعجاب</span>
+                        <span>💬 {{ post.comments_count }} تعليق</span>
+                    </div>
+
+                    <div class="post-actions-row">
+                        <form method="POST" action="{{ url_for('toggle_like', post_id=post.id) }}">
+                            <input type="hidden" name="next" value="{{ url_for('post_detail', post_id=post.id) }}">
+
+                            {% if post.id in liked_post_ids %}
+                                <button type="submit" class="post-action-btn liked-action">
+                                    ♥ أعجبني
+                                </button>
+                            {% else %}
+                                <button type="submit" class="post-action-btn">
+                                    ♡ إعجاب
+                                </button>
+                            {% endif %}
+                        </form>
+
+                        {% if post.user_id == current_user.id or current_user.is_admin %}
+                            <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" onsubmit="return confirm('هل تريد حذف هذا المنشور؟');">
+                                <button type="submit" class="post-action-btn danger-action">
+                                    حذف المنشور
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </article>
+
+                <section class="comments-card">
+                    <div class="comments-header">
+                        <h2>التعليقات</h2>
+                        <span>{{ post.comments_count }} تعليق</span>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}" class="comment-form">
+                        <div class="comment-input-row">
+                            <div class="comment-avatar">
+                                {% if current_user.avatar %}
+                                    <img 
+                                        src="{{ url_for('static', filename='uploads/avatars/' ~ current_user.avatar) }}" 
+                                        alt="صورة {{ current_user.name }}"
+                                    >
+                                {% else %}
+                                    {{ current_user.name[:1] }}
+                                {% endif %}
+                            </div>
+
+                            <textarea
+                                name="content"
+                                class="form-control custom-input comment-textarea"
+                                rows="3"
+                                placeholder="اكتب تعليقك أو تقييمك للصورة..."
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="text-start mt-3">
+                            <button type="submit" class="btn btn-primary-custom rounded-pill px-4">
+                                إضافة تعليق
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="comments-list">
+                        {% for comment in post.comments %}
+                            <div class="comment-item">
+                                <a href="{{ url_for('profile', username=comment.user.username) }}" class="comment-avatar comment-avatar-link">
+                                    {% if comment.user.avatar %}
+                                        <img 
+                                            src="{{ url_for('static', filename='uploads/avatars/' ~ comment.user.avatar) }}" 
+                                            alt="صورة {{ comment.user.name }}"
+                                        >
+                                    {% else %}
+                                        {{ comment.user.name[:1] }}
+                                    {% endif %}
+                                </a>
+
+                                <div class="comment-body">
+                                    <div class="comment-top">
+                                        <div>
+                                            <a href="{{ url_for('profile', username=comment.user.username) }}">
+                                                <strong>{{ comment.user.name }}</strong>
+                                            </a>
+                                            <span>@{{ comment.user.username }}</span>
+                                        </div>
+
+                                        <small>{{ comment.created_at.strftime("%Y-%m-%d %H:%M") }}</small>
+                                    </div>
+
+                                    <p>{{ comment.content }}</p>
+
+                                    {% if comment.user_id == current_user.id or post.user_id == current_user.id or current_user.is_admin %}
+                                        <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}" onsubmit="return confirm('هل تريد حذف هذا التعليق؟');">
+                                            <button type="submit" class="comment-delete-btn">
+                                                حذف التعليق
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="empty-comments">
+                                لا توجد تعليقات حتى الآن. كن أول من يعلّق.
+                            </div>
+                        {% endfor %}
+                    </div>
+                </section>
+            </div>
+
+            <aside class="post-detail-sidebar">
+                <div class="side-box">
+                    <h5>صاحب المنشور</h5>
+
+                    <div class="profile-mini-card compact-profile">
+                        <a href="{{ url_for('profile', username=post.author.username) }}" class="profile-mini-link">
+                            <div class="profile-mini-avatar">
+                                {% if post.author.avatar %}
+                                    <img 
+                                        src="{{ url_for('static', filename='uploads/avatars/' ~ post.author.avatar) }}" 
+                                        alt="صورة {{ post.author.name }}"
+                                    >
+                                {% else %}
+                                    {{ post.author.name[:1] }}
+                                {% endif %}
+                            </div>
+
+                            <h5>{{ post.author.name }}</h5>
+                            <p>@{{ post.author.username }}</p>
+                        </a>
+
+                        {% if post.author.specialty %}
+                            <span>{{ post.author.specialty }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="side-box">
+                    <h5>تفاعل المجتمع</h5>
+                    <ul>
+                        <li>{{ post.likes_count }} إعجاب على هذا المنشور.</li>
+                        <li>{{ post.comments_count }} تعليق حتى الآن.</li>
+                        <li>اكتب تقييمًا مفيدًا بدل تعليق عام.</li>
+                        <li>ساعد المصور على تحسين الصورة القادمة.</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

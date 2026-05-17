@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}منشور جديد | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="app-section">
+    <div class="container">
+        <div class="post-form-layout">
+
+            <div class="post-form-card">
+                <div class="post-form-header">
+                    <span>مشاركة جديدة</span>
+                    <h1>أنشئ منشورًا للمجتمع</h1>
+                    <p>
+                        شارك صورة من أعمالك، تجربة تصوير، سؤال فني، أو طلب تقييم من المدربين والزملاء.
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ url_for('new_post') }}" enctype="multipart/form-data" class="post-form">
+                    <div class="mb-3">
+                        <label class="form-label">نص المنشور *</label>
+                        <textarea
+                            name="content"
+                            class="form-control custom-input post-textarea"
+                            rows="7"
+                            placeholder="مثال: هذه تجربة تصوير منتجات بإضاءة جانبية ناعمة، أحتاج رأيكم في توزيع الظلال..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">صورة المنشور</label>
+                        <input
+                            type="file"
+                            name="image"
+                            class="form-control custom-input"
+                            accept=".png,.jpg,.jpeg,.gif,.webp"
+                        >
+
+                        <small class="form-help">
+                            الصيغ المسموحة: PNG, JPG, JPEG, GIF, WEBP — الحد الأقصى 8MB.
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary-custom rounded-pill px-4 py-3">
+                            نشر الآن
+                        </button>
+
+                        <a href="{{ url_for('feed') }}" class="btn btn-outline-light rounded-pill px-4 py-3">
+                            إلغاء
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="post-guidelines-card">
+                <h2>إرشادات النشر</h2>
+
+                <div class="guideline-item">
+                    <span>📷</span>
+                    <div>
+                        <strong>انشر أعمالك الحقيقية</strong>
+                        <p>شارك صورك وتجاربك لتبني بورتفوليو داخل المجتمع.</p>
+                    </div>
+                </div>
+
+                <div class="guideline-item">
+                    <span>💬</span>
+                    <div>
+                        <strong>اطلب رأيًا محددًا</strong>
+                        <p>اسأل عن الإضاءة، التكوين، الألوان، أو الفكرة.</p>
+                    </div>
+                </div>
+
+                <div class="guideline-item">
+                    <span>🤝</span>
+                    <div>
+                        <strong>احترم حقوق الآخرين</strong>
+                        <p>لا تنشر صورًا لا تملك حق استخدامها أو مشاركتها.</p>
+                    </div>
+                </div>
+
+                <div class="guideline-item">
+                    <span>🚀</span>
+                    <div>
+                        <strong>ابنِ حضورك المهني</strong>
+                        <p>كل منشور جيد يقربك من فرص تعاون وتطوير أفضل.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

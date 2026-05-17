@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}تسجيل الدخول | مجتمع بيت المصور{% endblock %}
+
+{% block content %}
+
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span>مرحبًا بعودتك</span>
+                <h1>تسجيل الدخول</h1>
+                <p>ادخل إلى مجتمع بيت المصور وتابع أعمال المصورين والمتدربين.</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+                <div class="mb-3">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" name="email" class="form-control custom-input" placeholder="example@email.com" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" name="password" class="form-control custom-input" placeholder="اكتب كلمة المرور" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary-custom w-100 rounded-pill py-3">
+                    دخول
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                ليس لديك حساب؟
+                <a href="{{ url_for('register') }}">انضم الآن</a>
+            </div>
+
+            <div class="demo-login-box">
+                <strong>بيانات الأدمن التجريبية:</strong>
+                <span>admin@baytalmosawer.local</span>
+                <span>Admin@12345</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
